@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Для тебя</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            color: #ffb6c1;
+        }
+
+        /* Канвас с матрицей */
+        #matrix {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            transition: filter 2s ease, opacity 2s ease;
+        }
+
+        /* Класс для размытия фона, когда появляется длинный текст */
+        .blur-background {
+            filter: blur(8px);
+            opacity: 0.3;
+        }
+
+        /* Общий контейнер для текстов */
+        .content-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        /* Короткое поздравление */
+        #intro-message {
+            text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #intro-message h1 {
+            font-size: clamp(2rem, 8vw, 4rem); /* Адаптивный размер заголовка */
+            margin: 0 0 10px 0;
+            color: #ff69b4;
+        }
+
+        #intro-message p {
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            margin: 0;
+        }
+
+        /* Длинное признание */
+        #confession-container {
+            opacity: 0;
+            transition: opacity 2s ease;
+            text-align: left; /* Длинный текст лучше читать с выравниванием по левому краю */
+            text-shadow: 0 0 5px #ffb6c1;
+            font-size: clamp(1rem, 4.5vw, 1.4rem); /* Адаптивный размер текста */
+            line-height: 1.6;
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            /* Добавим стильный курсор в конце текста */
+            border-right: 2px solid #ff69b4;
+            padding-right: 5px;
+            animation: blinkCursor 0.75s step-end infinite;
+        }
+
+        @keyframes blinkCursor {
+            from, to { border-color: transparent; }
+            50% { border-color: #ff69b4; }
+        }
+
+        /* Вспомогательный класс для отображения элементов */
+        .visible {
+            opacity: 1 !important;
+        }
+        .hidden {
+            opacity: 0 !important;
+        }
+
+        /* Отсчет */
+        #countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            font-size: clamp(4rem, 20vw, 12rem);
+            font-weight: bold;
+            color: #ff69b4;
+            text-shadow: 0 0 30px #ff69b4, 0 0 60px #ff1493;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes countdownPulse {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0.8);
+                filter: drop-shadow(0 0 20px #ff69b4);
+            }
+            50% {
+                filter: drop-shadow(0 0 50px #ff69b4);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.3);
+            }
+        }
+
+        #countdown.show {
+            animation: countdownPulse 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="content-container">
+        <div id="countdown"></div>
+        
+        <div id="intro-message">
+            <h1>С Днём Рождения!</h1>
+            <p>МИЛЕНА ❤️</p>
+        </div>
+
+        <div id="confession-container"></div>
+    </div>
+
+    <script>
+        // --- 1. ЛОГИКА МАТРИЦЫ ---
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        
+        let letters = '01'; 
+        let fontSize = 16;
+        let columns, drops;
+
+        // Функция инициализации холста (важно для адаптивности при повороте телефона)
+        function initMatrix() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            columns = Math.floor(canvas.width / fontSize);
+            drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = Math.random() * canvas.height; // Случайный старт
+            }
+        }
+
+        initMatrix();
+        window.addEventListener('resize', initMatrix); // Перерисовка при изменении размера окна
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffb6c1';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        let matrixInterval = setInterval(drawMatrix, 33);
+
+
+        // --- 2. СЦЕНАРИЙ АНИМАЦИИ И ТЕКСТОВ ---
+        const introMessage = document.getElementById('intro-message');
+        const confessionContainer = document.getElementById('confession-container');
+        const countdownEl = document.getElementById('countdown');
+        
+        // Текст признания
+        const longText = "Среди миллиардов строк кода этой вселенной, моя лучшая находка — это ты. До встречи с тобой мой мир был похож на замкнутый цикл без выхода. Ты добавила в него цвета, смысл и эмоции, которые не описать никакими алгоритмами. Ты — самая прекрасная часть моей жизни. Спасибо, что ты есть.";
+        
+        let i = 0;
+        let typingSpeed = 60; // Скорость печатания (мс)
+
+        // Функция эффекта печатной машинки
+        function typeWriter() {
+            if (i < longText.length) {
+                confessionContainer.innerHTML += longText.charAt(i);
+                i++;
+                setTimeout(typeWriter, typingSpeed);
+            } else {
+                // Убираем мигающий курсор после завершения печати
+                confessionContainer.style.borderRight = "none";
+                confessionContainer.style.animation = "none";
+            }
+        }
+
+        // Функция отсчета
+        function showCountdown() {
+            const numbers = [3, 2, 1];
+            let index = 0;
+
+            function displayNumber() {
+                if (index < numbers.length) {
+                    countdownEl.textContent = numbers[index];
+                    countdownEl.classList.remove('show');
+                    // Триггер для переиспользования класса с анимацией
+                    void countdownEl.offsetWidth;
+                    countdownEl.classList.add('show');
+                    index++;
+                    setTimeout(displayNumber, 1000);
+                } else {
+                    countdownEl.style.display = 'none';
+                }
+            }
+
+            displayNumber();
+        }
+
+        // Запуск последовательности
+        setTimeout(() => {
+            // Шаг 0: Запускаем отсчет 3-2-1
+            showCountdown();
+
+            setTimeout(() => {
+                // Шаг 1: Показываем "С Днем Рождения"
+                introMessage.classList.add('visible');
+
+                setTimeout(() => {
+                    // Шаг 2: Прячем "С Днем Рождения"
+                    introMessage.classList.remove('visible');
+                    introMessage.classList.add('hidden');
+
+                    setTimeout(() => {
+                        // Шаг 3: Замыливаем матрицу и замедляем её (визуальный комфорт)
+                        canvas.classList.add('blur-background');
+                        clearInterval(matrixInterval);
+                        matrixInterval = setInterval(drawMatrix, 80); // Матрица падает медленнее
+
+                        // Шаг 4: Показываем контейнер признания и начинаем печатать
+                        confessionContainer.classList.add('visible');
+                        typeWriter();
+
+                    }, 1500); // Ждем пока скроется первое сообщение
+
+                }, 4000); // Сколько висит надпись "С Днем Рождения" (4 сек)
+
+            }, 3000); // Отсчет длится 3 сек, потом появляется поздравление
+
+        }, 500); // Пауза перед стартом отсчета
+
+    </script>
+</body>
+</html>
