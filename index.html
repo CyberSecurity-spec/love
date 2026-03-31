@@ -129,6 +129,153 @@
         #countdown.show {
             animation: countdownPulse 1s ease-out forwards;
         }
+
+        /* Видео плеер */
+        #video-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 3;
+            width: 300px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #ff69b4;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 1s ease, transform 1s ease;
+            pointer-events: all;
+        }
+
+        #video-container.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            #video-container {
+                width: 250px;
+                height: 170px;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #video-container {
+                width: 200px;
+                height: 140px;
+            }
+        }
+
+        /* Галерея видео */
+        #video-gallery {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 3;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease, transform 1s ease;
+            pointer-events: none;
+        }
+
+        #video-gallery.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #ff69b4;
+            box-shadow: 0 0 40px rgba(255, 105, 180, 0.5);
+        }
+
+        .video-card {
+            background: linear-gradient(135deg, rgba(255, 105, 180, 0.2), rgba(255, 20, 147, 0.2));
+            border: 2px solid #ff69b4;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ffb6c1;
+            font-size: 0.9rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: scale(1.05) translateY(-5px);
+            background: linear-gradient(135deg, rgba(255, 105, 180, 0.4), rgba(255, 20, 147, 0.4));
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+            border-color: #ff1493;
+        }
+
+        .video-card.active {
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: #fff;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 1);
+        }
+
+        .video-card-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .video-card-code {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            font-family: 'Courier New', monospace;
+        }
+
+        .play-icon {
+            margin-top: 10px;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 15px;
+            }
+
+            #video-gallery {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            #video-gallery {
+                width: 100%;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                display: flex;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -144,6 +291,38 @@
         </div>
 
         <div id="confession-container"></div>
+    </div>
+
+    <div id="video-container">
+        <video id="main-video" controls>
+            <source src="0331.mp4" type="video/mp4">
+            Ваш браузер не поддерживает видео
+        </video>
+    </div>
+
+    <div id="video-gallery">
+        <div class="gallery-grid">
+            <div class="video-card active" data-video="0331.mp4">
+                <div class="video-card-title">Видео 1</div>
+                <div class="video-card-code">VIDEO_001</div>
+                <div class="play-icon">▶️</div>
+            </div>
+            <div class="video-card" data-video="0331(1).mp4">
+                <div class="video-card-title">Видео 2</div>
+                <div class="video-card-code">VIDEO_002</div>
+                <div class="play-icon">▶️</div>
+            </div>
+            <div class="video-card" data-video="0331(2).mp4">
+                <div class="video-card-title">Видео 3</div>
+                <div class="video-card-code">VIDEO_003</div>
+                <div class="play-icon">▶️</div>
+            </div>
+            <div class="video-card" data-video="0331(3).mp4">
+                <div class="video-card-title">Видео 4</div>
+                <div class="video-card-code">VIDEO_004</div>
+                <div class="play-icon">▶️</div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -209,8 +388,33 @@
                 // Убираем мигающий курсор после завершения печати
                 confessionContainer.style.borderRight = "none";
                 confessionContainer.style.animation = "none";
+                
+                // Показываем видео галерею после завершения печати
+                setTimeout(() => {
+                    const videoGallery = document.getElementById('video-gallery');
+                    const videoContainer = document.getElementById('video-container');
+                    videoGallery.classList.add('show');
+                    videoContainer.classList.add('show');
+                }, 800);
             }
         }
+
+        // Обработка выбора видео
+        document.querySelectorAll('.video-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const videoFile = this.getAttribute('data-video');
+                const mainVideo = document.getElementById('main-video');
+                
+                // Обновляем источник видео
+                mainVideo.src = videoFile;
+                mainVideo.load();
+                mainVideo.play();
+                
+                // Обновляем активное видео
+                document.querySelectorAll('.video-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
 
         // Функция отсчета
         function showCountdown() {
