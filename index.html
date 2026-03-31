@@ -28,6 +28,7 @@
         .blur-background {
             filter: blur(8px);
             opacity: 0.3;
+            will-change: filter, opacity;
         }
 
         /* Общий контейнер для текстов */
@@ -41,6 +42,22 @@
             max-width: 600px;
             text-align: center;
             pointer-events: none;
+            height: auto;
+            max-height: 80vh;
+        }
+
+        @media (max-width: 768px) {
+            .content-container {
+                max-width: 90vw;
+                max-height: 70vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-container {
+                max-width: 95vw;
+                max-height: 60vh;
+            }
         }
 
         /* Короткое поздравление */
@@ -81,6 +98,24 @@
             border-right: 2px solid #ff69b4;
             padding-right: 5px;
             animation: blinkCursor 0.75s step-end infinite;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            #confession-container {
+                font-size: clamp(0.9rem, 4vw, 1.2rem);
+                top: 40%;
+                max-height: 50vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #confession-container {
+                font-size: clamp(0.8rem, 3.5vw, 1rem);
+                top: 35%;
+                max-height: 45vh;
+            }
         }
 
         @keyframes blinkCursor {
@@ -160,22 +195,6 @@
             object-fit: cover;
         }
 
-        @media (max-width: 768px) {
-            #video-container {
-                width: 250px;
-                height: 170px;
-                bottom: 20px;
-                right: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #video-container {
-                width: 200px;
-                height: 140px;
-            }
-        }
-
         /* Галерея видео */
         #video-gallery {
             position: fixed;
@@ -250,30 +269,121 @@
         }
 
         @media (max-width: 768px) {
+            #video-container {
+                width: 280px;
+                height: 180px;
+                bottom: 250px;
+                right: 50%;
+                transform: translateX(50%) scale(0.8);
+            }
+
+            #video-container.show {
+                transform: translateX(50%) scale(1);
+            }
+
             .gallery-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
                 padding: 15px;
+                bottom: 20px;
             }
 
             #video-gallery {
                 bottom: 20px;
-                right: 20px;
+                right: 50%;
+                transform: translateX(50%) translateY(50px);
+                width: 90%;
+                max-width: 320px;
+            }
+
+            #video-gallery.show {
+                transform: translateX(50%) translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            #video-container {
+                width: 85vw;
+                height: 50vh;
+                max-height: 400px;
+                bottom: 50vh;
+                right: 50%;
+                transform: translateX(50%) scale(0.8);
+            }
+
+            #video-container.show {
+                transform: translateX(50%) scale(1);
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                padding: 15px;
+                width: 85vw;
+                max-width: 320px;
+            }
+
+            #video-gallery {
+                width: 85vw;
+                max-width: 320px;
+                bottom: 20px;
+                right: 50%;
+                left: auto;
+                transform: translateX(50%) translateY(50px);
+            }
+
+            #video-gallery.show {
+                transform: translateX(50%) translateY(0);
+            }
+
+            .video-card {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+
+            .video-card-title {
+                font-size: 0.95rem;
+            }
+
+            .play-icon {
+                font-size: 1.3rem;
             }
         }
 
         @media (max-width: 480px) {
+            #video-container {
+                width: 90vw;
+                height: 60vw;
+                max-height: 350px;
+                bottom: auto;
+                top: 50%;
+                right: 50%;
+                transform: translate(50%, -50%) scale(0.8);
+            }
+
+            #video-container.show {
+                transform: translate(50%, -50%) scale(1);
+            }
+
             .gallery-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 12px;
+                width: 90vw;
             }
 
             #video-gallery {
-                width: 100%;
-                right: 0;
-                left: 0;
-                bottom: 0;
-                display: flex;
-                justify-content: center;
+                width: 90vw;
+                max-width: none;
+                bottom: 20px;
+                top: auto;
+                right: 50%;
+                left: auto;
+                transform: translateX(50%) translateY(50px);
+            }
+
+            #video-gallery.show {
+                transform: translateX(50%) translateY(0);
             }
         }
     </style>
@@ -303,23 +413,23 @@
     <div id="video-gallery">
         <div class="gallery-grid">
             <div class="video-card active" data-video="0331.mp4">
-                <div class="video-card-title">Видео 1</div>
+                <div class="video-card-title">Воиска Мын Бала</div>
                 <div class="video-card-code">VIDEO_001</div>
                 <div class="play-icon">▶️</div>
             </div>
             <div class="video-card" data-video="0331(1).mp4">
-                <div class="video-card-title">Видео 2</div>
-                <div class="video-card-code">VIDEO_002</div>
+                <div class="video-card-title">Зверополис 2</div>
+                <div class="video-card-code">1:23:07 - 1:23:21</div>
                 <div class="play-icon">▶️</div>
             </div>
             <div class="video-card" data-video="0331(2).mp4">
-                <div class="video-card-title">Видео 3</div>
-                <div class="video-card-code">VIDEO_003</div>
+                <div class="video-card-title">Новый Человек Паук : Высокое Напряжение </div>
+                <div class="video-card-code">1:45:27 - 1:45:4</div>
                 <div class="play-icon">▶️</div>
             </div>
             <div class="video-card" data-video="0331(3).mp4">
-                <div class="video-card-title">Видео 4</div>
-                <div class="video-card-code">VIDEO_004</div>
+                <div class="video-card-title">Анатомия Любви </div>
+                <div class="video-card-code">32:49 - 33:32</div>
                 <div class="play-icon">▶️</div>
             </div>
         </div>
